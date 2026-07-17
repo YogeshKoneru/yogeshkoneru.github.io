@@ -187,16 +187,88 @@
     position: relative;
     border-top: 1px solid var(--line-dark);
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
   .reading {
     padding: 26px var(--pad);
     border-right: 1px solid var(--line-dark);
+    cursor: pointer;
+    transition: background .2s;
   }
+  .reading:hover, .reading:focus-visible { background: color-mix(in srgb, var(--paper) 5%, transparent); }
   .reading:last-child { border-right: none; }
+
+  /* ---------- stat detail modal ---------- */
+  .stat-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .stat-modal.open { display: flex; }
+  .stat-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--ink) 82%, transparent);
+    backdrop-filter: blur(3px);
+  }
+  .stat-modal-card {
+    position: relative;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--line-dark);
+    border-radius: 4px;
+    max-width: 480px;
+    width: 100%;
+    padding: clamp(28px, 5vw, 40px);
+  }
+  .stat-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--line-dark);
+    border-radius: 2px;
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    cursor: pointer;
+    transition: border-color .2s, color .2s;
+  }
+  .stat-modal-close:hover { border-color: var(--jade-bright); color: var(--jade-bright); }
+  .stat-modal-val {
+    font-family: var(--font-mono);
+    font-size: clamp(40px, 8vw, 56px);
+    color: var(--jade-bright);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .stat-modal-lab {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    color: color-mix(in srgb, var(--paper) 65%, transparent);
+    margin-top: 10px;
+  }
+  .stat-modal-desc {
+    margin-top: 22px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: color-mix(in srgb, var(--paper) 85%, transparent);
+    border-top: 1px solid var(--line-dark);
+    padding-top: 20px;
+  }
   .reading .val {
     font-family: var(--font-mono);
-    font-size: clamp(26px, 4vw, 38px);
+    font-size: clamp(24px, 3.4vw, 38px);
     color: var(--jade-bright);
     font-weight: 500;
     letter-spacing: -0.01em;
@@ -208,10 +280,14 @@
     line-height: 1.35;
   }
   .readings .wrap { display: contents; }
-  @media (max-width: 760px) {
+  @media (max-width: 900px) {
+    .readings { grid-template-columns: repeat(3, 1fr); }
+    .reading:nth-child(3n) { border-right: none; }
+  }
+  @media (max-width: 560px) {
     .readings { grid-template-columns: repeat(2, 1fr); }
-    .reading:nth-child(2) { border-right: none; }
-    .reading:nth-child(1), .reading:nth-child(2) { border-bottom: 1px solid var(--line-dark); }
+    .reading:nth-child(3n) { border-right: 1px solid var(--line-dark); }
+    .reading:nth-child(2n) { border-right: none; }
   }
 
   /* ---------- section shell ---------- */
@@ -330,6 +406,22 @@
     .project { grid-template-columns: 1fr; }
     .project .headline-stat { text-align: left; }
   }
+  .project + .project { margin-top: 20px; }
+  .proj-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 20px;
+  }
+  .proj-links a {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--jade);
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s;
+  }
+  .proj-links a:hover { border-bottom-color: var(--jade); }
+  .proj-links a::before { content: "→ "; }
 
   /* ---------- skills ---------- */
   .skills-grid {
@@ -348,10 +440,21 @@
     color: var(--jade);
     margin-bottom: 14px;
   }
-  .skill-cell .v { display: flex; flex-wrap: wrap; gap: 8px 10px; }
-  .skill-cell .v span { font-size: 14.5px; color: var(--ink); }
-  .skill-cell .v span::after { content: "·"; color: var(--line); margin-left: 10px; }
-  .skill-cell .v span:last-child::after { content: ""; }
+  .skill-cell .v { display: flex; flex-direction: column; gap: 9px; }
+  .skill-cell .v span {
+    position: relative;
+    padding-left: 16px;
+    font-size: 14.5px;
+    color: var(--ink);
+  }
+  .skill-cell .v span::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 6px;
+    width: 6px; height: 6px;
+    border: 1px solid var(--jade);
+    background: transparent;
+  }
 
   /* ---------- certs / education row ---------- */
   .two-col {
@@ -369,6 +472,13 @@
     border-bottom: 1px solid var(--line);
   }
   .cert-item .mono { font-family: var(--font-mono); font-size: 12px; color: var(--jade); }
+  .lead-item {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  .lead-item .lead-role { color: var(--ink); font-weight: 600; }
   .edu-item { padding-bottom: 16px; border-bottom: 1px solid var(--line); }
   .edu-item .deg { font-family: var(--font-display); font-weight: 600; font-size: 17px; }
   .edu-item .sch { color: var(--jade); font-weight: 500; margin-top: 2px; }
@@ -424,7 +534,7 @@
     <a class="brand" href="#top">Y<b>·</b>K<b>·</b>KONERU</a>
     <nav class="nav-links">
       <a class="hide-sm" href="#experience">Experience</a>
-      <a class="hide-sm" href="#project">Project</a>
+      <a class="hide-sm" href="#project">Projects</a>
       <a class="hide-sm" href="#skills">Skills</a>
       <a class="nav-cta" href="mailto:yogeshkoneru6601@gmail.com">Get in touch</a>
     </nav>
@@ -437,7 +547,7 @@
   <section class="hero" style="padding-block:0;">
     <div class="grid-bg"></div>
     <div class="wrap hero-inner">
-      <span class="eyebrow">Data Analyst · Systems Data Professional</span>
+      <span class="eyebrow">Data Analyst · Generative AI &amp; Automation</span>
       <h1>Yogesh Kumar<br />Koneru<span class="dim">.</span></h1>
       <p class="lede">
         I turn operational, security, and healthcare data into decisions —
@@ -454,21 +564,35 @@
 
     <!-- Signature: quantified "readings" from real, stated results -->
     <div class="readings">
-      <div class="reading">
+      <div class="reading" tabindex="0" role="button" aria-haspopup="dialog"
+        data-val="18%" data-lab="energy efficiency gain — solar PCM project"
+        data-desc="Academic project applying Python-based data processing and IoT sensor integration to monitor real-time solar panel performance. Using phase-change materials for thermal optimization, the system achieved an 18% improvement in energy efficiency — refined through cross-team collaboration on data collection methods.">
         <div class="val">18%</div>
         <div class="lab">energy efficiency gain — solar PCM project</div>
       </div>
-      <div class="reading">
+      <div class="reading" tabindex="0" role="button" aria-haspopup="dialog"
+        data-val="2" data-lab="automated data projects shipped & deployed (FDA tracker + dashboard)"
+        data-desc="Two personal engineering projects built end-to-end: an automated Python pipeline that pulls, cleans, and reports on live FDA drug recall data via GitHub Actions, plus a companion Streamlit dashboard for interactive, real-time exploration. Both are deployed and publicly accessible.">
+        <div class="val">2</div>
+        <div class="lab">automated data projects shipped &amp; deployed (FDA tracker + dashboard)</div>
+      </div>
+      <div class="reading" tabindex="0" role="button" aria-haspopup="dialog"
+        data-val="15%" data-lab="procurement cost reduction from comparative analysis"
+        data-desc="Conducted a comparative analysis of PTZ camera models during an IT internship at Wilmington University, translating technical trade-offs into a clear recommendation that supported procurement decisions and cut costs by 15%.">
         <div class="val">15%</div>
         <div class="lab">procurement cost reduction from comparative analysis</div>
       </div>
-      <div class="reading">
+      <div class="reading" tabindex="0" role="button" aria-haspopup="dialog"
+        data-val="$78K" data-lab="student budget tracked & reported as treasurer"
+        data-desc="As Treasurer of the Student Government Association, managed and reported on a $78,000 annual budget — tracking expenditures, reconciling accounts, and ensuring accurate financial reporting to student leadership.">
         <div class="val">$78K</div>
         <div class="lab">student budget tracked &amp; reported as treasurer</div>
       </div>
-      <div class="reading">
-        <div class="val">3×</div>
-        <div class="lab">Microsoft certifications — Power BI &amp; Azure</div>
+      <div class="reading" tabindex="0" role="button" aria-haspopup="dialog"
+        data-val="5" data-lab="professional certifications (Google Cloud, Microsoft, Anthropic)"
+        data-desc="Certifications spanning cloud, data analytics, and generative AI: Google Cloud Certified Generative AI Leader, Microsoft Certified Power BI Data Analyst Associate, Microsoft Certified Azure AI Fundamentals, and two Anthropic Academy courses — AI Fluency: Framework & Foundations, and Claude 101.">
+        <div class="val">5</div>
+        <div class="lab">professional certifications (Google Cloud, Microsoft, Anthropic)</div>
       </div>
     </div>
   </section>
@@ -484,15 +608,18 @@
       <div class="meta">
         <div class="role">Systems Data Engineer</div>
         <div class="org">Premier Med Group</div>
-        <div class="date">Sep 2025 — Present</div>
+        <div class="date">Oct 2025 — Present</div>
       </div>
       <ul>
-        <li>Support day-to-day data systems for a <b>multi-practice healthcare environment</b>, keeping clinical and administrative access reliable and available.</li>
-        <li>Maintain data integrity and <b>compliance with healthcare regulatory standards</b>, reducing discrepancies and audit risk.</li>
-        <li>Monitor performance, troubleshoot data and application issues, and tune storage and retrieval for responsiveness.</li>
-        <li>Administer database configs, backups, and <b>disaster-recovery strategies</b> to minimize downtime during incidents.</li>
-        <li>Support upgrades, patches, and migrations with minimal disruption to patient-facing workflows, and enforce data-access security practices.</li>
-        <li>Contributed to CRM development by shaping data structures, workflows, and reporting; wrote documentation and trained internal teams.</li>
+        <li>Manage and support day-to-day data systems for a <b>multi-practice healthcare environment</b>, ensuring high availability and reliable access for clinical and administrative operations.</li>
+        <li>Maintain data integrity, accuracy, and <b>compliance with healthcare regulatory standards</b>, reducing data discrepancies and audit risk.</li>
+        <li>Manage patient records, insurance verification, and copay documentation within <b>Enable Healthcare (EHR/EMR)</b>, ensuring accurate clinical and billing data.</li>
+        <li>Monitor monthly operational dashboards and manage processing of practice bills and invoices.</li>
+        <li>Led finance operations including <b>budget tracking, expense reporting, and insurance claims submission</b>.</li>
+        <li>Administer database configurations, backups, and <b>disaster-recovery strategies</b>, strengthening data resilience and minimizing downtime during incidents.</li>
+        <li>Completed system upgrades, patches, and data migrations with minimal disruption to patient-facing workflows.</li>
+        <li>Implement security best practices for data access, storage, and transmission to safeguard sensitive medical information.</li>
+        <li>Contributed to CRM development efforts and created technical documentation and training to improve team adoption.</li>
       </ul>
     </div>
 
@@ -503,10 +630,11 @@
         <div class="date">Mar 2025 — Sep 2025</div>
       </div>
       <ul>
-        <li>Designed and implemented <b>relational schemas</b> in SQL Server, MySQL, and PostgreSQL to meet application requirements.</li>
-        <li>Partnered with senior developers on data tasks, applying analytical thinking to troubleshoot and resolve issues.</li>
-        <li>Supported querying, data validation, and optimization to improve application reliability.</li>
-        <li>Built exposure to end-to-end and integration testing, plus cloud data storage concepts on <b>AWS and GCP</b>.</li>
+        <li>Gained exposure to <b>relational database design concepts</b> (SQL Server, MySQL, PostgreSQL) by supporting senior developers on application data requirements.</li>
+        <li>Partnered with senior developers on development and data-related tasks, applying analytical thinking to troubleshoot and resolve issues.</li>
+        <li>Gained exposure to <b>end-to-end and integration testing</b> concepts within a production development environment.</li>
+        <li>Completed data validation and documentation tasks to improve application reliability.</li>
+        <li>Built foundational understanding of cloud platforms including <b>AWS and GCP</b>, focusing on data storage and application integration concepts.</li>
       </ul>
     </div>
 
@@ -517,7 +645,7 @@
         <div class="date">Sep 2024 — Dec 2024</div>
       </div>
       <ul>
-        <li>Analyzed IT service and incident data with <b>SQL and Power BI</b> to help improve average response times.</li>
+        <li>Analyzed IT service and incident data using <b>Excel and Power BI</b>, contributing to improved average response times.</li>
         <li>Designed interactive dashboards that gave leadership clearer visibility into IT performance metrics.</li>
         <li>Ran a comparative analysis of PTZ camera models, supporting procurement decisions that <b>cut costs by 15%</b>.</li>
         <li>Translated technical findings into clear, actionable reports for non-technical stakeholders.</li>
@@ -531,9 +659,10 @@
         <div class="date">Mar 2023 — Dec 2024</div>
       </div>
       <ul>
-        <li>Collected, cleaned, and analyzed <b>campus security incident data</b> to surface trends and risk patterns.</li>
+        <li>Collected, cleaned, and analyzed <b>campus security incident data</b> (Excel/CSV) to identify trends and risk patterns.</li>
         <li>Produced recurring Power BI reports used by safety leadership to guide operational decisions.</li>
-        <li>Improved data-collection processes and kept reporting accurate and consistent across multiple sources.</li>
+        <li>Improved data collection processes, contributing to <b>faster emergency response times</b>.</li>
+        <li>Ensured accurate and consistent reporting across multiple data sources.</li>
       </ul>
     </div>
   </section>
@@ -541,9 +670,51 @@
   <!-- PROJECT -->
   <section id="project" class="wrap">
     <div class="section-head reveal">
-      <h2>Selected project</h2>
+      <h2>Selected projects</h2>
       <span class="idx">02 / build</span>
     </div>
+
+    <div class="project reveal">
+      <div>
+        <h3>FDA Drug Recall Tracker</h3>
+        <p>
+          Automated Python pipeline that pulls, cleans, and reports on live
+          FDA drug recall data via the openFDA API — scheduled to run daily
+          with GitHub Actions for continuous, hands-off updates.
+        </p>
+        <div class="tags">
+          <span class="tag">Python</span>
+          <span class="tag">GitHub Actions</span>
+          <span class="tag">openFDA API</span>
+          <span class="tag">Automation</span>
+        </div>
+        <div class="proj-links">
+          <a href="https://github.com/YogeshKoneru/fda-recall-tracker" target="_blank" rel="noopener">Repository</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project reveal">
+      <div>
+        <h3>FDA Drug Recall Dashboard</h3>
+        <p>
+          Interactive Streamlit web app visualizing drug recall trends with
+          dynamic filtering, KPI summaries, and charts — deployed publicly
+          on Streamlit Cloud for live, real-time access.
+        </p>
+        <div class="tags">
+          <span class="tag">Streamlit</span>
+          <span class="tag">Plotly</span>
+          <span class="tag">Pandas</span>
+          <span class="tag">Data Viz</span>
+        </div>
+        <div class="proj-links">
+          <a href="https://github.com/YogeshKoneru/fda-recall-dashboard" target="_blank" rel="noopener">Repository</a>
+          <a href="https://fda-recall-dashboard-qd8jfo5o7hf8jvshednnkx.streamlit.app/" target="_blank" rel="noopener">Live demo</a>
+        </div>
+      </div>
+    </div>
+
     <div class="project reveal">
       <div>
         <h3>Improving Solar Panel Performance Using PCM</h3>
@@ -569,6 +740,18 @@
     </div>
   </section>
 
+  <!-- LEADERSHIP -->
+  <section class="wrap">
+    <div class="section-head reveal" style="margin-bottom: 28px;">
+      <h2>Leadership &amp; Activities</h2>
+    </div>
+    <div class="stack-list reveal">
+      <div class="lead-item"><span class="lead-role">Vice President, Multicultural Club</span> — Led event performance analysis and engagement tracking to increase participation.</div>
+      <div class="lead-item"><span class="lead-role">Treasurer, Student Government Association</span> — Managed and reported on a $78,000 budget with accurate financial tracking.</div>
+      <div class="lead-item" style="border-bottom: none;"><span class="lead-role">Student Ambassador</span> — Analyzed recruitment event metrics to optimize outreach strategies.</div>
+    </div>
+  </section>
+
   <!-- SKILLS -->
   <section id="skills" class="wrap">
     <div class="section-head reveal">
@@ -577,8 +760,16 @@
     </div>
     <div class="skills-grid reveal">
       <div class="skill-cell">
+        <div class="k">Generative AI &amp; Automation</div>
+        <div class="v"><span>Prompt Engineering</span><span>AI-Assisted Workflows</span><span>GitHub Actions Automation</span></div>
+      </div>
+      <div class="skill-cell">
+        <div class="k">Productivity Tools</div>
+        <div class="v"><span>Microsoft Office Suite</span><span>Google Workspace</span></div>
+      </div>
+      <div class="skill-cell">
         <div class="k">Data &amp; Analytics</div>
-        <div class="v"><span>SQL</span><span>Power BI</span><span>Tableau</span><span>Excel (Advanced)</span><span>Google Sheets</span></div>
+        <div class="v"><span>Power BI</span><span>Tableau</span><span>Excel</span><span>Google Sheets</span></div>
       </div>
       <div class="skill-cell">
         <div class="k">Databases</div>
@@ -586,15 +777,15 @@
       </div>
       <div class="skill-cell">
         <div class="k">Programming</div>
-        <div class="v"><span>Python</span></div>
+        <div class="v"><span>Python (working knowledge)</span></div>
       </div>
       <div class="skill-cell">
         <div class="k">Cloud &amp; Platforms</div>
-        <div class="v"><span>Azure</span><span>AWS</span><span>GCP</span></div>
+        <div class="v"><span>Azure (Foundations)</span><span>AWS (Exposure)</span><span>GCP (Exposure)</span></div>
       </div>
       <div class="skill-cell">
         <div class="k">Analytics Concepts</div>
-        <div class="v"><span>Data Cleaning</span><span>Reporting</span><span>Dashboarding</span><span>Predictive Analytics</span></div>
+        <div class="v"><span>Data Cleaning</span><span>Reporting</span><span>Dashboarding</span></div>
       </div>
       <div class="skill-cell">
         <div class="k">Methods</div>
@@ -611,9 +802,11 @@
           <h2>Certifications</h2>
         </div>
         <div class="stack-list">
+          <div class="cert-item"><span class="mono">GC</span><span>Google Cloud Certified: Generative AI Leader</span></div>
+          <div class="cert-item"><span class="mono">AA</span><span>Anthropic Academy: AI Fluency — Framework &amp; Foundations</span></div>
+          <div class="cert-item"><span class="mono">AA</span><span>Anthropic Academy: Claude 101</span></div>
           <div class="cert-item"><span class="mono">MS</span><span>Microsoft Certified: Power BI Data Analyst Associate</span></div>
           <div class="cert-item"><span class="mono">MS</span><span>Microsoft Certified: Azure AI Fundamentals</span></div>
-          <div class="cert-item"><span class="mono">MS</span><span>Microsoft Certified: Azure Developer Associate</span></div>
         </div>
       </div>
       <div class="reveal">
@@ -638,7 +831,7 @@
   <!-- CONTACT -->
   <section id="contact" class="contact">
     <div class="wrap">
-      <span class="eyebrow reveal">Open to data analyst roles</span>
+      <span class="eyebrow reveal">Open to data &amp; AI-driven roles</span>
       <h2 class="reveal">Let's put your data<br />to work. <a href="mailto:yogeshkoneru6601@gmail.com">Say hello →</a></h2>
       <div class="contact-links reveal">
         <a class="chip" href="mailto:yogeshkoneru6601@gmail.com"><span class="dot"></span>yogeshkoneru6601@gmail.com</a>
@@ -649,13 +842,23 @@
       <footer>
         <div class="foot-bar">
           <span>© <span id="yr"></span> Yogesh Kumar Koneru</span>
-          <span>Built for the web · SQL / Power BI / Python</span>
+          <span>Built for the web · Data, Automation &amp; Applied AI</span>
         </div>
       </footer>
     </div>
   </section>
 
 </main>
+
+<div class="stat-modal" id="stat-modal" role="dialog" aria-modal="true" aria-labelledby="stat-modal-lab">
+  <div class="stat-modal-backdrop" data-close></div>
+  <div class="stat-modal-card">
+    <button class="stat-modal-close" data-close aria-label="Close">×</button>
+    <div class="stat-modal-val" id="stat-modal-val"></div>
+    <div class="stat-modal-lab" id="stat-modal-lab"></div>
+    <div class="stat-modal-desc" id="stat-modal-desc"></div>
+  </div>
+</div>
 
 <script>
   document.getElementById('yr').textContent = new Date().getFullYear();
@@ -667,6 +870,57 @@
     });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  // Stat modal — click a stat to expand it, back button / Escape / backdrop click to close
+  const modal = document.getElementById('stat-modal');
+  const modalVal = document.getElementById('stat-modal-val');
+  const modalLab = document.getElementById('stat-modal-lab');
+  const modalDesc = document.getElementById('stat-modal-desc');
+  let statModalOpen = false;
+
+  function openStatModal(readingEl) {
+    modalVal.textContent = readingEl.dataset.val || '';
+    modalLab.textContent = readingEl.dataset.lab || '';
+    modalDesc.textContent = readingEl.dataset.desc || '';
+    modal.classList.add('open');
+    statModalOpen = true;
+    // Push a history entry so the device/browser back button closes the modal
+    // instead of navigating away from the page.
+    history.pushState({ statModal: true }, '');
+  }
+
+  function closeStatModal() {
+    if (!statModalOpen) return;
+    modal.classList.remove('open');
+    statModalOpen = false;
+  }
+
+  document.querySelectorAll('.reading').forEach((el) => {
+    el.addEventListener('click', () => openStatModal(el));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openStatModal(el);
+      }
+    });
+  });
+
+  // Backdrop click or × button: go back, which triggers the popstate handler below
+  modal.querySelectorAll('[data-close]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (statModalOpen) history.back();
+    });
+  });
+
+  // Escape key: same treatment, so all three closing paths behave identically
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && statModalOpen) history.back();
+  });
+
+  // Actual browser/device back button (or the programmatic history.back() calls above)
+  window.addEventListener('popstate', () => {
+    if (statModalOpen) closeStatModal();
+  });
 </script>
 
 </body>
